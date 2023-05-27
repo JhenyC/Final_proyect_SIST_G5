@@ -9,7 +9,7 @@ def eventos_bot():
     while True:
         command = input("Ingrese el comando a ejecutar: ")
         if command == "1":
-            bot.manejar_evento_externo()
+            bot.manejar_evento_externo("Juan")
         elif command == "2":
             print("nada")
 
