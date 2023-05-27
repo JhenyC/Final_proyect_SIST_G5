@@ -1,5 +1,5 @@
 import telebot
-import patient
+import objects.patient as patient
 from config import TOKEN, contact_list, VALIDATION_CODE
 
 class MyBot:
@@ -126,7 +126,7 @@ class MyBot:
         def handle_all_messages(message):
             state = ""
             if(message.text == "Gracias"):
-                self.enviar_mensaje(message.chat.id, "De nada :)")
+                self.enviar_mensaje(message.chat.id, "De nada" + u'\U0001F600')
             if("Por Favor" in message.text):
                 self.enviar_mensaje(message.chat.id, "Claro que si :)")
             if(message.chat.id in self.users_state):
