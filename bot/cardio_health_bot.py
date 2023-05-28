@@ -15,13 +15,13 @@ class MyBot:
     def enviar_mensaje(self, chat_id, mensaje):
         self.bot.send_message(chat_id, mensaje)
 
-    def evento_externo(self, info_evento):
+    def evento_externo(self, nombre, habitacion):
         # Lógica para detectar el evento externo y obtener el mensaje que se enviará
-        mensaje = "EMERGENCIA: {} necesita ayuda".format(info_evento)
+        mensaje = "EMERGENCIA: {} en la habitacion {} necesita ayuda".format(nombre, habitacion)
         return mensaje
 
-    def manejar_evento_externo(self, info_evento):
-        mensaje = self.evento_externo(info_evento)
+    def manejar_evento_externo(self, nombre, habitacion):
+        mensaje = self.evento_externo(nombre, habitacion)
         for chat_id in self.contact_list:
             self.enviar_mensaje(chat_id, mensaje)
 
