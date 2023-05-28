@@ -1,5 +1,6 @@
 import telebot
 import objects.patient as patient
+import objects.classifier as classifier
 from config import TOKEN, contact_list, VALIDATION_CODE
 
 class MyBot:
@@ -9,6 +10,7 @@ class MyBot:
         self.contact_list = contact_list
         self.users_state = {}
         self.patient_user = {}
+        self.classifier = classifier.Classifier()
 
     def enviar_mensaje(self, chat_id, mensaje):
         self.bot.send_message(chat_id, mensaje)
@@ -69,8 +71,27 @@ class MyBot:
     def analizar_paciente(self, message):
         chat_id = message.chat.id
         a_patient = self.patient_user[chat_id]
-        self.enviar_mensaje(chat_id, "Datos del paciente:")
-        self.enviar_mensaje(chat_id, a_patient)
+        df = a_patient.data_frame_format()
+        prediction = self.classifier.classify(df)
+        if prediction[0] == 1:
+            mensaje = "Es probable que el paciente sufra alguna enfermedad cardiaca"
+        else:
+            mensaje = "Es poco probable que el paciente sufra alguna enfermedad cardiaca"
+        self.enviar_mensaje(chat_id, mensaje)
+    
+    def enviar_mensaje_botones(self, chat_id, mensaje, botones):
+        markup = telebot.types.ReplyKeyboardMarkup(row_width=2)
+        for boton in botones:
+            markup.add(telebot.types.KeyboardButton(boton))
+        self.bot.send_message(chat_id, mensaje, reply_markup=markup)
+
+    def estandarizar_respuestas(self, mensaje):
+        if mensaje == "Si":
+            return 1
+        elif mensaje == "No":
+            return 0
+        else:
+            return mensaje
 
     def info_bot(self, message):
         chat_id = message.chat.id
@@ -117,7 +138,7 @@ class MyBot:
             if(self.autenticar_usuario(message)):
                 self.patient_user[message.chat.id] = patient.Patient()
                 self.enviar_mensaje(message.chat.id, "Muy bien, ahora ingresa los datos del paciente")
-                self.enviar_mensaje(message.chat.id, "¿Cual es la edad del paciente?")
+                self.enviar_mensaje(message.chat.id, "¿Cual es la edad del paciente? \n(en años completos sin decimales Ejemplo de respuesta: \"20\")")
                 self.controlar_estado_usuario(message, "analizar_paciente_edad")
             else:
                 self.enviar_mensaje(message.chat.id, "No tienes permiso para usar este comando")
@@ -139,86 +160,102 @@ class MyBot:
                     self.eliminar_contacto(message)
                     self.controlar_estado_usuario(message, "ninguno")
                 case "analizar_paciente_edad":
-                    self.patient_user[message.chat.id].set_age(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿Cual es el sexo del paciente?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_sexo")
+                    try:
+                        self.patient_user[message.chat.id].set_age(message.text)
+                        self.enviar_mensaje_botones(message.chat.id, "¿Cual es el sexo del paciente?", ["Hombre", "Mujer"])
+                        self.controlar_estado_usuario(message, "analizar_paciente_sexo")
+                    except:
+                        self.enviar_mensaje(message.chat.id, "Por favor ingrese un numero entero")
+                        self.enviar_mensaje(message.chat.id, "¿Cual es la edad del paciente? \n(en años completos sin decimales Ejemplo de respuesta: \"20\")")
                 case "analizar_paciente_sexo":
-                    self.patient_user[message.chat.id].set_sex(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿Cual es el nivel de educacion del paciente?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_educacion")
-                case "analizar_paciente_educacion":
-                    self.patient_user[message.chat.id].set_education(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿Cual es el nivel de ingresos del paciente?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_ingresos")
-                case "analizar_paciente_ingresos":
-                    self.patient_user[message.chat.id].set_income(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿El paciente tiene lata presión?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_presion")
+                    try:
+                        self.patient_user[message.chat.id].set_sex(1 if message.text == "Hombre" else 0)
+                        self.enviar_mensaje_botones(message.chat.id, "¿El paciente tiene presion arterial alta? (Pacientes adultos que hayan recibido un diagnostico de presion alta por un profesional de la salud)", ["Si", "No"])
+                        self.controlar_estado_usuario(message, "analizar_paciente_presion")
+                    except:
+                        self.enviar_mensaje(message.chat.id, "Por favor ingrese una respuesta valida")
+                        self.enviar_mensaje_botones(message.chat.id, "¿Cual es el sexo del paciente?", ["Hombre", "Mujer"])
                 case "analizar_paciente_presion":
-                    self.patient_user[message.chat.id].set_high_blood_pressure(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿El paciente tiene alto colesterol?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_colesterol")
+                    try:
+                        self.patient_user[message.chat.id].set_high_blood_pressure(self.estandarizar_respuestas(message.text))
+                        self.enviar_mensaje_botones(message.chat.id, "¿El paciente tiene alto colesterol? (Pacientes adultos que hayan recibido diagnostico de colesterol alto por un profesional de la salud)", ["Si", "No"])
+                        self.controlar_estado_usuario(message, "analizar_paciente_colesterol")
+                    except:
+                        self.enviar_mensaje(message.chat.id, "Por favor ingrese una respuesta valida")
+                        self.enviar_mensaje_botones(message.chat.id, "¿El paciente tiene presion arterial alta? (Pacientes adultos que hayan recibido un diagnostico de presion alta por un profesional de la salud)", ["Si", "No"])
                 case "analizar_paciente_colesterol":
-                    self.patient_user[message.chat.id].set_high_cholesterol(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿El paciente se realizo una verificacion de colesterol?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_verificacion_colesterol")
-                case "analizar_paciente_verificacion_colesterol":
-                    self.patient_user[message.chat.id].set_cholesterol_checked(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿Cual es el IMC del paciente?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_imc")
+                    try:
+                        self.patient_user[message.chat.id].set_high_cholesterol(self.estandarizar_respuestas(message.text))
+                        self.enviar_mensaje(message.chat.id, "¿Cual es el IMC del paciente? \n(En caso de no saberlo, puedes calcularlo en https://www.calculadoraimc.com/) \n (Ejemplo de respuesta: \"20.5\")")
+                        self.controlar_estado_usuario(message, "analizar_paciente_imc")
+                    except:
+                        self.enviar_mensaje(message.chat.id, "Por favor ingrese una respuesta valida")
+                        self.enviar_mensaje_botones(message.chat.id, "¿El paciente tiene alto colesterol? (Pacientes adultos que hayan recibido diagnostico de colesterol alto por un profesional de la salud)", ["Si", "No"])
                 case "analizar_paciente_imc":
-                    self.patient_user[message.chat.id].set_BMI(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿El paciente es fumador?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_fumador")
+                    try:
+                        self.patient_user[message.chat.id].set_BMI(message.text)
+                        self.enviar_mensaje_botones(message.chat.id, "¿El paciente es fumador? (¿El paciente fumó al menos 100 cigarros en toda su vida? NOTA: 5 paquetes = 100 cigarros)", ["Si", "No"])
+                        self.controlar_estado_usuario(message, "analizar_paciente_fumador")
+                    except:
+                        self.enviar_mensaje(message.chat.id, "Por favor ingrese un numero decimal")
+                        self.enviar_mensaje(message.chat.id, "¿Cual es el IMC del paciente? \n(En caso de no saberlo, puedes calcularlo en https://www.calculadoraimc.com/) \n (Ejemplo de respuesta: \"20.5\")")
                 case "analizar_paciente_fumador":
-                    self.patient_user[message.chat.id].set_smoker(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿El paciente tiene diabetes?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_diabetes")
+                    try:
+                        self.patient_user[message.chat.id].set_smoker(self.estandarizar_respuestas(message.text))
+                        self.enviar_mensaje_botones(message.chat.id, "¿El paciente tiene diabetes? ", ["Diabetes tipo 1", "Diabetes tipo 2", "No"])
+                        self.controlar_estado_usuario(message, "analizar_paciente_diabetes")
+                    except:
+                        self.enviar_mensaje(message.chat.id, "Por favor ingrese una respuesta valida")
+                        self.enviar_mensaje_botones(message.chat.id, "¿El paciente es fumador? (¿El paciente fumó al menos 100 cigarros en toda su vida? NOTA: 5 paquetes = 100 cigarros)", ["Si", "No"])
                 case "analizar_paciente_diabetes":
-                    self.patient_user[message.chat.id].set_diabetes(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿El paciente realiza actividad fisica?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_actividad_fisica")
+                    try:
+                        self.patient_user[message.chat.id].set_diabetes(2 if message.text == "Diabetes tipo 2" else 1 if message.text == "Diabetes tipo 1" else 0)
+                        self.enviar_mensaje_botones(message.chat.id, "¿El paciente realiza actividad fisica? (Pacientes adultos que reporten actividad fisica regular en los utlimos 30 días)", ["Si", "No"])
+                        self.controlar_estado_usuario(message, "analizar_paciente_actividad_fisica")
+                    except:
+                        self.enviar_mensaje(message.chat.id, "Por favor ingrese una respuesta valida")
+                        self.enviar_mensaje_botones(message.chat.id, "¿El paciente tiene diabetes? ", ["Diabetes tipo 1", "Diabetes tipo 2", "No"])
                 case "analizar_paciente_actividad_fisica":
-                    self.patient_user[message.chat.id].set_physical_activity(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿Cuanta fruta consume el paciente?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_fruta")
-                case "analizar_paciente_fruta":
-                    self.patient_user[message.chat.id].set_fruits(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿Cuantos vegetales consume el paciente?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_vegetales")
-                case "analizar_paciente_vegetales":
-                    self.patient_user[message.chat.id].set_vegetables(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿El paciente consume alcohol?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_alcohol")
+                    try:
+                        self.patient_user[message.chat.id].set_physical_activity(self.estandarizar_respuestas(message.text))
+                        self.enviar_mensaje_botones(message.chat.id, "¿El paciente consume alcohol? (Hombres adultos que beban 14 bebidas alcoholicas o mas por semana y mujeres adultas que beban mas de 7 bebidas alcoholicas por semana)", ["Si", "No"])
+                        self.controlar_estado_usuario(message, "analizar_paciente_alcohol")
+                    except:
+                        self.enviar_mensaje(message.chat.id, "Por favor ingrese una respuesta valida")
+                        self.enviar_mensaje_botones(message.chat.id, "¿El paciente realiza actividad fisica? (Pacientes adultos que reporten actividad fisica regular en los utlimos 30 días)", ["Si", "No"])
                 case "analizar_paciente_alcohol":
-                    self.patient_user[message.chat.id].set_alcohol(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿El paciente recibe cuidados de salud actualmente?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_cuidados_salud")
-                case "analizar_paciente_cuidados_salud":
-                    self.patient_user[message.chat.id].set_health_care(message.text)
-                    self.enviar_mensaje(message.chat.id, "noDocbcCost")
-                    self.controlar_estado_usuario(message, "analizar_paciente_costo")
-                case "analizar_paciente_costo":
-                    self.patient_user[message.chat.id].set_noDocbcCost(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿Cual es el estado general de salud del paciente?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_estado_salud")
+                    try:
+                        self.patient_user[message.chat.id].set_alcohol(self.estandarizar_respuestas(message.text))
+                        self.enviar_mensaje_botones(message.chat.id, "¿Cual es el estado general de salud del paciente?", ["Pesimo","Malo", "Regular", "Bueno", "Excelente"])
+                        self.controlar_estado_usuario(message, "analizar_paciente_estado_salud")
+                    except:
+                        self.enviar_mensaje(message.chat.id, "Por favor ingrese una respuesta valida")
+                        self.enviar_mensaje_botones(message.chat.id, "¿El paciente consume alcohol? (Hombres adultos que beban 14 bebidas alcoholicas o mas por semana y mujeres adultas que beban mas de 7 bebidas alcoholicas por semana)", ["Si", "No"])
                 case "analizar_paciente_estado_salud":
-                    self.patient_user[message.chat.id].set_general_health(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿Cual es el estado mental del paciente?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_estado_mental")
+                    try:
+                        self.patient_user[message.chat.id].set_general_health(1 if message.text == "Pesimo" else 2 if message.text == "Malo" else 3 if message.text == "Regular" else 4 if message.text == "Bueno" else 5 if message.text == "Excelente" else 0)
+                        self.enviar_mensaje(message.chat.id, "¿Cual es el estado mental del paciente? (¿En cuantos de los ultimos 30 días el paciente se ha sentido deprimido, ansioso o emocionalmente inestable? \n Ejemplo de respuesta: \"10\"")
+                        self.controlar_estado_usuario(message, "analizar_paciente_estado_mental")
+                    except:
+                        self.enviar_mensaje(message.chat.id, "Por favor ingrese una respuesta valida")
+                        self.enviar_mensaje_botones(message.chat.id, "¿Cual es el estado general de salud del paciente?", ["Pesimo","Malo", "Regular", "Bueno", "Excelente"])
                 case "analizar_paciente_estado_mental":
-                    self.patient_user[message.chat.id].set_mental_health(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿Cual es el estado fisico del paciente?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_estado_fisico")
+                    try:
+                        self.patient_user[message.chat.id].set_mental_health(message.text)
+                        self.enviar_mensaje(message.chat.id, "¿Cual es el estado fisico del paciente? (¿En cuantos de los ultimos 30 días el paciente ha tenido problemas para realizar sus actividades diarias debido a problemas de salud fisica?) \n Ejemplo de respuesta: \"10\"")
+                        self.controlar_estado_usuario(message, "analizar_paciente_estado_fisico")
+                    except:
+                        self.enviar_mensaje(message.chat.id, "Por favor ingrese una respuesta valida")
+                        self.enviar_mensaje(message.chat.id, "¿Cual es el estado mental del paciente? (¿En cuantos de los ultimos 30 días el paciente se ha sentido deprimido, ansioso o emocionalmente inestable? \n Ejemplo de respuesta: \"10\"")
                 case "analizar_paciente_estado_fisico":
-                    self.patient_user[message.chat.id].set_physical_health(message.text)
-                    self.enviar_mensaje(message.chat.id, "¿El paciente presenta dificultades para caminar?")
-                    self.controlar_estado_usuario(message, "analizar_paciente_dificultad_caminar")
-                case "analizar_paciente_dificultad_caminar":
-                    self.patient_user[message.chat.id].set_walking_difficulties(message.text)
-                    self.enviar_mensaje(message.chat.id, "Espere un momento por favor...")
-                    self.analizar_paciente(message)
-                    self.controlar_estado_usuario(message, "ninguno")
+                    try:
+                        self.patient_user[message.chat.id].set_physical_health(message.text)
+                        self.enviar_mensaje(message.chat.id, "Espere un momento por favor...")
+                        self.analizar_paciente(message)
+                        self.controlar_estado_usuario(message, "ninguno")
+                    except:
+                        self.enviar_mensaje(message.chat.id, "Por favor ingrese una respuesta valida")
+                        self.enviar_mensaje(message.chat.id, "¿Cual es el estado fisico del paciente? (¿En cuantos de los ultimos 30 días el paciente ha tenido problemas para realizar sus actividades diarias debido a problemas de salud fisica?) \n Ejemplo de respuesta: \"10\"")
                 case _:
                     self.info_bot(message)
 
