@@ -12,10 +12,12 @@ nombres_mujer = ['Maria', 'Carmen', 'Josefa', 'Isabel', 'Ana', 'Laura', 'Francis
 def eventos_bot():
     #Controlador de eventos externos
     #por ahora solo se maneja por linea de comandos
+    nombre = "Juan"
+    habitacion = 1
     while True:
         command = input("Ingrese el comando a ejecutar: ")
         if command == "1":
-            bot.manejar_evento_externo("Juan")
+            bot.manejar_evento_externo(nombre, habitacion)
         elif command == "2":
             print("nada")
 
@@ -44,6 +46,8 @@ def simulacion_pacientes():
         if prediction == 1:
             bot.manejar_evento_externo(nombre, habitacion)
 
+threadManual = th.Thread(target=eventos_bot)
+threadManual.start()
 thread = th.Thread(target=simulacion_pacientes)
 thread.start()
 print("Simulacion de pacientes iniciada")

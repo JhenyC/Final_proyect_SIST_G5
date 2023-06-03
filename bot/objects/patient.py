@@ -3,14 +3,21 @@ class Patient:
     def __init__(self):
         self.high_blood_pressure = None
         self.high_cholesterol = None
+        self.cholesterol_checked = None
         self.BMI = None
         self.smoker = None
+        self.stroke = None
         self.diabetes = None
         self.physical_activity = None
+        self.fruits= None
+        self.veggies = None
         self.alcohol = None
+        self.health_care = None
+        self.noDocbcCost = None
         self.general_health = None
         self.mental_health = None
         self.physical_health = None
+        self.walking_difficulty = None
         self.age = None
         self.sex = None
 
@@ -18,20 +25,26 @@ class Patient:
         data = {
         'HighBP': [self.high_blood_pressure],
         'HighChol': [self.high_cholesterol],
+        'CholCheck': [self.cholesterol_checked],
         'BMI': [self.BMI],
         'Smoker': [self.smoker],
+        'Stroke': [self.stroke],
         'Diabetes': [self.diabetes],
         'PhysActivity': [self.physical_activity],
+        'Fruits': [self.fruits],
+        'Veggies': [self.veggies],
         'HvyAlcoholConsump': [self.alcohol],
+        'AnyHealthCare': [self.health_care],
+        'NoDocbcCost': [self.noDocbcCost],
         'GenHlth': [self.general_health],
         'MentHlth': [self.mental_health],
         'PhysHlth': [self.physical_health],
+        'DiffWalk': [self.walking_difficulty],
         'Age': [self.age],
-        'Sex': [self.sex]
+        'Sex': [self.sex],
         }
 
         df = pd.DataFrame(data)
-        print(df.head())
         return df
 
     def set_age(self, age):
@@ -69,6 +82,48 @@ class Patient:
 
     def set_physical_health(self, physical_health):
         self.physical_health = physical_health
+
+    def set_walking_difficulty(self, walking_difficulty):
+        self.walking_difficulty = walking_difficulty
+
+    def set_fruits(self, fruits):
+        self.fruits = fruits
+
+    def set_veggies(self, veggies):
+        self.veggies = veggies
+
+    def set_health_care(self, health_care):
+        self.health_care = health_care
+    
+    def set_noDocbcCost(self, noDocbcCost):
+        self.noDocbcCost = noDocbcCost
+
+    def set_chol_checked(self, cholesterol_checked):
+        self.cholesterol_checked = cholesterol_checked
+    
+    def set_stroke(self, stroke):
+        self.stroke = stroke
+
+    def get_stroke(self):
+        return self.stroke
+    
+    def get_chol_checked(self):
+        return self.cholesterol_checked
+    
+    def get_noDocbcCost(self):
+        return self.noDocbcCost
+    
+    def get_health_care(self):
+        return self.health_care
+    
+    def get_fruits(self):
+        return self.fruits
+    
+    def get_veggies(self):
+        return self.veggies
+    
+    def get_walking_difficulty(self):
+        return self.walking_difficulty
 
     def get_age(self):
         return self.age
@@ -113,4 +168,6 @@ class Patient:
                f"diabetes={self.diabetes}, physical_activity={self.physical_activity}," \
                f"alcohol={self.alcohol}, health_care={self.health_care}, " \
                f"general_health={self.general_health}, " \
-               f"mental_health={self.mental_health}, physical_health={self.physical_health}, "
+               f"mental_health={self.mental_health}, physical_health={self.physical_health}, "\
+               f"walking_difficulty={self.walking_difficulty}, fruits={self.fruits}, veggies={self.veggies}, "\
+               f"noDocbcCost={self.noDocbcCost}, chol_checked={self.cholesterol_checked}, stroke={self.stroke}"

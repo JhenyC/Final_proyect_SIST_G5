@@ -17,18 +17,36 @@ class PatientSimulator:
         
         # Colesterol alto
         high_chol = rd.choices([0, 1], weights=[0.542, 0.458], k=1)[0]
+
+        # Colesterol chequeado
+        chol_checked = rd.choices([0, 1], weights=[0.542, 0.458], k=1)[0]
         
         # Fumador
         smoker = rd.choices([0, 1], weights=[0.554, 0.446], k=1)[0]
+
+        # Ataques cardiacos
+        stroke = rd.choices([0, 1], weights=[0.982, 0.018], k=1)[0]
         
         # Diabetes
         diabetes = rd.choices([0, 1, 2], weights=[0.850, 0.015, 0.135], k=1)[0]
         
         # Actividad fisica
         phys_activity = rd.choices([0, 1], weights=[0.249, 0.751], k=1)[0]
+
+        #Frutas
+        fruits = rd.choices([0, 1], weights=[0.5, 0.5], k=1)[0]
+
+        # Vegetales
+        vegetables = rd.choices([0, 1], weights=[0.5, 0.5], k=1)[0]
         
         # Consumo de alcohol
         alcohol_consumption = rd.choices([0, 1], weights=[0.943, 0.057], k=1)[0]
+
+        # Cuidados de salud
+        health_care = rd.choices([0, 1], weights=[0.5, 0.5], k=1)[0]
+
+        # Costo de no tener seguro
+        noDocbcCost = rd.choices([0, 1], weights=[0.5, 0.5], k=1)[0]
         
         # Salud general
         general_health = rd.choices([1, 2, 3, 4, 5], weights=[0.182, 0.336, 0.292, 0.134, 0.056], k=1)[0]
@@ -40,16 +58,16 @@ class PatientSimulator:
         BMI = np.random.lognormal(mean=self.BMI_mu, sigma=self.BMI_sigma, size=1)[0]
 
         # Mental health
-
         mental_health = random_variable = np.random.exponential(1/self.v_lambda, 1)[0]
 
         # Physical health
-
         physical_health = random_variable = np.random.exponential(1/self.v_lambda, 1)[0]
 
         # Age
-
         age = np.random.normal(loc=self.Age_mu, scale=self.Age_sigma, size=1)[0]
+
+        # Dificultades para caminar
+        difficulties_walking = rd.choices([0, 1], weights=[0.5, 0.5], k=1)[0]
 
         self.patient.set_high_blood_pressure(high_bp)
         self.patient.set_high_cholesterol(high_chol)
@@ -63,6 +81,14 @@ class PatientSimulator:
         self.patient.set_physical_health(physical_health)
         self.patient.set_age(age)
         self.patient.set_sex(sex)
+        self.patient.set_stroke(stroke)
+        self.patient.set_chol_checked(chol_checked)
+        self.patient.set_fruits(fruits)
+        self.patient.set_veggies(vegetables)
+        self.patient.set_health_care(health_care)
+        self.patient.set_noDocbcCost(noDocbcCost)
+        self.patient.set_walking_difficulty(difficulties_walking)
+
 
         return self.patient
 
