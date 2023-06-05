@@ -19,13 +19,13 @@ class PatientSimulator:
         high_chol = rd.choices([0, 1], weights=[0.542, 0.458], k=1)[0]
 
         # Colesterol chequeado
-        chol_checked = rd.choices([0, 1], weights=[0.542, 0.458], k=1)[0]
+        chol_checked = rd.choices([0, 1], weights=[0.037, 0.963], k=1)[0]
         
         # Fumador
         smoker = rd.choices([0, 1], weights=[0.554, 0.446], k=1)[0]
 
         # Ataques cardiacos
-        stroke = rd.choices([0, 1], weights=[0.982, 0.018], k=1)[0]
+        stroke = rd.choices([0, 1], weights=[0.959, 0.041], k=1)[0]
         
         # Diabetes
         diabetes = rd.choices([0, 1, 2], weights=[0.850, 0.015, 0.135], k=1)[0]
@@ -34,19 +34,19 @@ class PatientSimulator:
         phys_activity = rd.choices([0, 1], weights=[0.249, 0.751], k=1)[0]
 
         #Frutas
-        fruits = rd.choices([0, 1], weights=[0.5, 0.5], k=1)[0]
+        fruits = rd.choices([0, 1], weights=[0.366, 0.634], k=1)[0]
 
         # Vegetales
-        vegetables = rd.choices([0, 1], weights=[0.5, 0.5], k=1)[0]
+        vegetables = rd.choices([0, 1], weights=[0.189, 0.811], k=1)[0]
         
         # Consumo de alcohol
         alcohol_consumption = rd.choices([0, 1], weights=[0.943, 0.057], k=1)[0]
 
         # Cuidados de salud
-        health_care = rd.choices([0, 1], weights=[0.5, 0.5], k=1)[0]
+        health_care = rd.choices([0, 1], weights=[0.049, 0.951], k=1)[0]
 
         # Costo de no tener seguro
-        noDocbcCost = rd.choices([0, 1], weights=[0.5, 0.5], k=1)[0]
+        noDocbcCost = rd.choices([0, 1], weights=[0.916, 0.084], k=1)[0]
         
         # Salud general
         general_health = rd.choices([1, 2, 3, 4, 5], weights=[0.182, 0.336, 0.292, 0.134, 0.056], k=1)[0]
@@ -67,7 +67,7 @@ class PatientSimulator:
         age = np.random.normal(loc=self.Age_mu, scale=self.Age_sigma, size=1)[0]
 
         # Dificultades para caminar
-        difficulties_walking = rd.choices([0, 1], weights=[0.5, 0.5], k=1)[0]
+        difficulties_walking = rd.choices([0, 1], weights=[0.832, 0.168], k=1)[0]
 
         self.patient.set_high_blood_pressure(high_bp)
         self.patient.set_high_cholesterol(high_chol)

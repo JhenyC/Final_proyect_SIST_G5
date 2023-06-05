@@ -43,6 +43,7 @@ def simulacion_pacientes():
         print("Paciente: ", nombre, " Habitacion: ", habitacion)
 
         prediction = bot.classifier.classify(patient_data_dataframe)
+        print(prediction)
         if prediction == 1:
             bot.manejar_evento_externo(nombre, habitacion)
 

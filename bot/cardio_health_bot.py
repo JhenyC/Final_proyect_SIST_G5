@@ -266,43 +266,43 @@ class MyBot:
                 case "analizar_paciente_ataque_cardiaco":
                     try:
                         self.patient_user[message.chat.id].set_stroke(self.estandarizar_respuestas(message.text))
-                        self.enviar_mensaje(message.chat.id, "¿Cual es el costo medico del paciente?")
+                        self.enviar_mensaje_botones(message.chat.id, "¿En los ultimos 30 dias el paciente requirio tratamiento que no pudo pagar?", ["Si", "No"])
                         self.controlar_estado_usuario(message, "analizar_paciente_costo_medico")
                     except:
                         self.enviar_mensaje(message.chat.id, "Por favor ingrese una respuesta valida")
                         self.enviar_mensaje_botones(message.chat.id, "¿El paciente sufrió algun ataque cardiaco en el pasado?", ["Si", "No"])
                 case "analizar_paciente_costo_medico":
                     try:
-                        self.patient_user[message.chat.id].set_noDocbcCost(message.text)
+                        self.patient_user[message.chat.id].set_noDocbcCost(self.estandarizar_respuestas(message.text))
                         self.enviar_mensaje_botones(message.chat.id, "¿El paciente esta pasando por algun tratamiento médico actualmente?", ["Si", "No"])
                         self.controlar_estado_usuario(message, "analizar_paciente_tratamiento_medico")
                     except:
                         self.enviar_mensaje(message.chat.id, "Por favor ingrese una respuesta valida")
-                        self.enviar_mensaje(message.chat.id, "¿Cual es el costo medico del paciente?")
+                        self.enviar_mensaje_botones(message.chat.id, "¿En los ultimos 30 dias el paciente requirio tratamiento que no pudo pagar?", ["Si", "No"])
                 case "analizar_paciente_tratamiento_medico":
                     try:
                         self.patient_user[message.chat.id].set_health_care(self.estandarizar_respuestas(message.text))
-                        self.enviar_mensaje(message.chat.id, "¿Cantidad de vegetales que consume el paciente?")
+                        self.enviar_mensaje_botones(message.chat.id, "¿El paciente suele consumir vegetales?", ["Si", "No"])
                         self.controlar_estado_usuario(message, "analizar_paciente_vegetales")
                     except:
                         self.enviar_mensaje(message.chat.id, "Por favor ingrese una respuesta valida")
                         self.enviar_mensaje_botones(message.chat.id, "¿El paciente esta pasando por algun tratamiento médico actualmente?", ["Si", "No"])
                 case "analizar_paciente_vegetales":
                     try:
-                        self.patient_user[message.chat.id].set_veggies(message.text)
-                        self.enviar_mensaje(message.chat.id, "¿Cantidad de frutas que consume el paciente?")
+                        self.patient_user[message.chat.id].set_veggies(self.estandarizar_respuestas(message.text))
+                        self.enviar_mensaje_botones(message.chat.id, "¿El paciente suele consumir frutas?", ["Si", "No"])
                         self.controlar_estado_usuario(message, "analizar_paciente_frutas")
                     except:
                         self.enviar_mensaje(message.chat.id, "Por favor ingrese una respuesta valida")
-                        self.enviar_mensaje(message.chat.id, "¿Cantidad de vegetales que consume el paciente?")
+                        self.enviar_mensaje_botones(message.chat.id, "¿El paciente suele consumir vegetales?", ["Si", "No"])
                 case "analizar_paciente_frutas":
                     try:
-                        self.patient_user[message.chat.id].set_fruits(message.text)
+                        self.patient_user[message.chat.id].set_fruits(self.estandarizar_respuestas(message.text))
                         self.enviar_mensaje_botones(message.chat.id, "¿El paciente tiene alguna dificultad para caminar?", ["Si", "No"])
                         self.controlar_estado_usuario(message, "analizar_paciente_dificultad_caminar")
                     except:
                         self.enviar_mensaje(message.chat.id, "Por favor ingrese una respuesta valida")
-                        self.enviar_mensaje(message.chat.id, "¿Cantidad de frutas que consume el paciente?")
+                        self.enviar_mensaje_botones(message.chat.id, "¿El paciente suele consumir frutas?", ["Si", "No"])
                 case "analizar_paciente_dificultad_caminar":
                     try:
                         self.patient_user[message.chat.id].set_walk_difficulty(self.estandarizar_respuestas(message.text))
