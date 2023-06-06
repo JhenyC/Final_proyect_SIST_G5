@@ -257,7 +257,7 @@ class MyBot:
                         self.enviar_mensaje(message.chat.id, "¿Cual es el estado fisico del paciente? (¿En cuantos de los ultimos 30 días el paciente ha tenido problemas para realizar sus actividades diarias debido a problemas de salud fisica?) \n Ejemplo de respuesta: \"10\"")
                 case "analizar_paciente_colesterol_chequeo":
                     try:
-                        self.patient_user[message.chat.id].set_cholesterol_checked(self.estandarizar_respuestas(message.text))
+                        self.patient_user[message.chat.id].set_chol_checked(self.estandarizar_respuestas(message.text))
                         self.enviar_mensaje_botones(message.chat.id, "¿El paciente sufrió algun ataque cardiaco en el pasado?", ["Si", "No"])
                         self.controlar_estado_usuario(message, "analizar_paciente_ataque_cardiaco")
                     except:
@@ -305,7 +305,7 @@ class MyBot:
                         self.enviar_mensaje_botones(message.chat.id, "¿El paciente suele consumir frutas?", ["Si", "No"])
                 case "analizar_paciente_dificultad_caminar":
                     try:
-                        self.patient_user[message.chat.id].set_walk_difficulty(self.estandarizar_respuestas(message.text))
+                        self.patient_user[message.chat.id].set_walking_difficulty(self.estandarizar_respuestas(message.text))
                         self.enviar_mensaje(message.chat.id, "Espere un momento por favor, estamos analizando los datos...")
                         self.analizar_paciente(message)
                         self.controlar_estado_usuario(message, "ninguno")
